@@ -1,0 +1,8 @@
+node_modules/
+state/
+config/sessions.json
+*.env
+.env*
+dist/
+.omc/
+*.log

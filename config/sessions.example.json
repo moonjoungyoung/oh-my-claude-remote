@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "authorizedUsers": [123456789],
+  "master": {
+    "credentialKey": "omc-master-bot-token",
+    "notifyChatId": "123456789"
+  },
+  "sessions": [
+    {
+      "id": 1,
+      "name": "worker-1",
+      "credentialKey": "omc-session-1-token",
+      "botUsername": "my_worker_1_bot",
+      "defaultMode": "yolo",
+      "workingDirectory": "C:\\dev",
+      "autoStart": false,
+      "autoRestart": false,
+      "maxRestarts": 3
+    },
+    {
+      "id": 2,
+      "name": "worker-2",
+      "credentialKey": "omc-session-2-token",
+      "botUsername": "my_worker_2_bot",
+      "defaultMode": "yolo",
+      "workingDirectory": "C:\\dev",
+      "autoStart": false,
+      "autoRestart": false,
+      "maxRestarts": 3
+    },
+    {
+      "id": 3,
+      "name": "worker-3",
+      "credentialKey": "omc-session-3-token",
+      "botUsername": "my_worker_3_bot",
+      "defaultMode": "yolo",
+      "workingDirectory": "C:\\dev",
+      "autoStart": false,
+      "autoRestart": false,
+      "maxRestarts": 3
+    },
+    {
+      "id": 4,
+      "name": "worker-4",
+      "credentialKey": "omc-session-4-token",
+      "botUsername": "my_worker_4_bot",
+      "defaultMode": "yolo",
+      "workingDirectory": "C:\\dev",
+      "autoStart": false,
+      "autoRestart": false,
+      "maxRestarts": 3
+    }
+  ],
+  "healthCheck": {
+    "intervalSeconds": 30,
+    "unresponsiveThreshold": 300
+  }
+}
