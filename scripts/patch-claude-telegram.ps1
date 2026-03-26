@@ -147,17 +147,24 @@ BotCommand("repo", "List repos / switch workspace"),
         dir_str = str(current_dir).replace(":", "").replace("\\", "-").replace("/", "-")
         project_dir = claude_dir / dir_str
 
-        matched = None
+        matches = []
         if project_dir.exists():
             for f in project_dir.glob("*.jsonl"):
                 if f.stem.startswith(target):
-                    matched = f.stem
-                    break
+                    matches.append(f.stem)
 
-        if not matched:
+        if len(matches) == 0:
             await update.message.reply_text(f"Session not found: {target}\nUse /sessions to list.")
             return
 
+        if len(matches) > 1:
+            lines = [f"'{target}' matches {len(matches)} sessions. Be more specific:\n"]
+            for m in matches[:5]:
+                lines.append(f"  {m[:12]}...")
+            await update.message.reply_text("\n".join(lines))
+            return
+
+        matched = matches[0]
         context.user_data["claude_session_id"] = matched
         context.user_data["force_new_session"] = False
         await update.message.reply_text(f"Resumed: {matched[:8]}...\nSend a message to continue.")
