@@ -120,12 +120,13 @@ BotCommand("repo", "List repos / switch workspace"),
             return
 
         current_sid = context.user_data.get("claude_session_id", "")
-        lines = ["Sessions:\n"]
-        for short_id, full_id, ts, prompt in sessions:
-            marker = " <" if current_sid and current_sid.startswith(short_id) else ""
-            lines.append(f"  {short_id}  {ts}  {prompt}{marker}")
-        lines.append(f"\n/resume <id>")
-        await update.message.reply_text("\n".join(lines))
+        lines = []
+        for i, (short_id, full_id, ts, prompt) in enumerate(sessions):
+            marker = " *" if current_sid and current_sid.startswith(short_id) else ""
+            num = f"{i+1}."
+            lines.append(f"{num:3s} <code>{short_id}</code>  {ts}{marker}\n    {prompt}")
+        text = "<b>Sessions</b>\n\n" + "\n\n".join(lines) + "\n\n/resume &lt;id&gt;"
+        await update.message.reply_text(text, parse_mode="HTML")
 
     async def agentic_resume(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
