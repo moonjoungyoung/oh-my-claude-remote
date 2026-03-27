@@ -124,7 +124,7 @@ BotCommand("repo", "List repos / switch workspace"),
         for i, (short_id, full_id, ts, prompt) in enumerate(sessions):
             marker = " *" if current_sid and current_sid.startswith(short_id) else ""
             num = f"{i+1}."
-            lines.append(f"{num:3s} <code>{short_id}</code>  {ts}{marker}\n    {prompt}")
+            lines.append(f"{num:3s} <code>{short_id}</code>  {ts}{marker}\n    {escape_html(prompt)}")
         text = "<b>Sessions</b>\n\n" + "\n\n".join(lines) + "\n\n/resume &lt;id&gt;"
         await update.message.reply_text(text, parse_mode="HTML")
 
