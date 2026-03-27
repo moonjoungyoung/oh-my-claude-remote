@@ -73,7 +73,7 @@ BotCommand("repo", "List repos / switch workspace"),
             "current_directory", self.settings.approved_directory
         )
         claude_dir = _P.home() / ".claude" / "projects"
-        dir_str = str(current_dir).replace(":", "").replace("\\", "-").replace("/", "-")
+        dir_str = str(current_dir).replace(":", "-").replace("\\", "-").replace("/", "-")
         project_dir = claude_dir / dir_str
 
         if not project_dir.exists():
@@ -144,7 +144,7 @@ BotCommand("repo", "List repos / switch workspace"),
             "current_directory", self.settings.approved_directory
         )
         claude_dir = _P.home() / ".claude" / "projects"
-        dir_str = str(current_dir).replace(":", "").replace("\\", "-").replace("/", "-")
+        dir_str = str(current_dir).replace(":", "-").replace("\\", "-").replace("/", "-")
         project_dir = claude_dir / dir_str
 
         matches = []
