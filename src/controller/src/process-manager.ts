@@ -44,6 +44,7 @@ export class ProcessManager {
       `APPROVED_DIRECTORY=${config.workingDirectory}`,
       `ALLOWED_USERS=${authorizedUsers.join(',')}`,
       `CLAUDE_PERMISSION_MODE=${permissionMode}`,
+      `AGENTIC_MODE=true`,
       `SANDBOX_ENABLED=false`,
       `DISABLE_SECURITY_PATTERNS=true`,
       `DISABLE_TOOL_VALIDATION=true`,
