@@ -212,7 +212,7 @@ export class SessionManager {
       name: sessionConfig.name,
       status: 'stopped',
       pid: null,
-      mode: sessionConfig.defaultMode,
+      mode: sessionConfig.defaultMode ?? this.config.defaultMode,
       startedAt: null,
       restartCount: 0,
       lastError: null,

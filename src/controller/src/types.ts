@@ -9,7 +9,7 @@ export interface SessionConfig {
   name: string;
   credentialKey: string;
   botUsername: string;
-  defaultMode: SessionMode;
+  defaultMode?: SessionMode; // overrides global defaultMode if set
   workingDirectory: string;
   autoStart: boolean;
   autoRestart: boolean;
@@ -29,6 +29,7 @@ export interface HealthCheckConfig {
 export interface AppConfig {
   version: 1;
   authorizedUsers: number[];
+  defaultMode: SessionMode; // global default, used when session doesn't override
   master: MasterConfig;
   sessions: SessionConfig[];
   healthCheck: HealthCheckConfig;

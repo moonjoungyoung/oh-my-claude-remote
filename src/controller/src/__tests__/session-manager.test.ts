@@ -29,7 +29,7 @@ mock.module('../config', () => {
             name: s.name,
             status: 'stopped' as const,
             pid: null,
-            mode: s.defaultMode,
+            mode: s.defaultMode ?? config.defaultMode,
             startedAt: null,
             restartCount: 0,
             lastError: null,
@@ -47,6 +47,7 @@ mock.module('../config', () => {
 const TEST_CONFIG: AppConfig = {
   version: 1,
   authorizedUsers: [111],
+  defaultMode: 'yolo',
   master: { credentialKey: 'master-key', notifyChatId: '999' },
   sessions: [
     {

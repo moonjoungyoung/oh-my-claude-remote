@@ -10,6 +10,7 @@ import type { AppConfig, StateFile } from '../types';
 const VALID_CONFIG: AppConfig = {
   version: 1,
   authorizedUsers: [123456],
+  defaultMode: 'yolo',
   master: {
     credentialKey: 'master-token',
     notifyChatId: '999',
