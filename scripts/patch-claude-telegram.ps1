@@ -215,6 +215,28 @@ if (Test-Path $facadeFile) {
 }
 
 # ============================================================
+# Patch 4: Set entrypoint to "cli" for CLI session compatibility
+# ============================================================
+$transportFile = "$sitePackages\claude_agent_sdk\_internal\transport\subprocess_cli.py"
+if (Test-Path $transportFile) {
+    $content = Get-Content $transportFile -Raw
+
+    if ($content -match '"CLAUDE_CODE_ENTRYPOINT": "cli"') {
+        Write-Host "[Patch 4] entrypoint: Already patched." -ForegroundColor Green
+    } else {
+        $patched = $content.Replace('"CLAUDE_CODE_ENTRYPOINT": "sdk-py"', '"CLAUDE_CODE_ENTRYPOINT": "cli"')
+        if ($patched -ne $content) {
+            Set-Content $transportFile -Value $patched -NoNewline
+            Write-Host "[Patch 4] entrypoint: Patched." -ForegroundColor Green
+        } else {
+            $errors += "Could not find CLAUDE_CODE_ENTRYPOINT pattern in subprocess_cli.py"
+        }
+    }
+} else {
+    $errors += "subprocess_cli.py not found"
+}
+
+# ============================================================
 if ($errors.Count -gt 0) {
     Write-Host "`nErrors:" -ForegroundColor Red
     foreach ($e in $errors) { Write-Host "  - $e" -ForegroundColor Red }
