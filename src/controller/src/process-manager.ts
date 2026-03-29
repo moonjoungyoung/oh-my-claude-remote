@@ -52,9 +52,14 @@ export class ProcessManager {
     fs.writeFileSync(envFile, envContent);
 
     // Spawn claude-telegram-bot with this config
+    // Remove CLAUDECODE env var to prevent "nested session" error
+    const spawnEnv = { ...process.env };
+    delete spawnEnv.CLAUDECODE;
+    delete spawnEnv.CLAUDE_CODE_ENTRYPOINT;
+
     const proc = Bun.spawn(['claude-telegram-bot', '--config-file', envFile], {
       cwd: config.workingDirectory,
-      env: { ...process.env },
+      env: spawnEnv,
       stdout: 'pipe',
       stderr: 'pipe',
     });
