@@ -182,6 +182,39 @@ BotCommand("repo", "List repos / switch workspace"),
 }
 
 # ============================================================
+# Patch 3: Force resume in facade.py
+# ============================================================
+$facadeFile = "$sitePackages\src\claude\facade.py"
+if (Test-Path $facadeFile) {
+    $content = Get-Content $facadeFile -Raw
+
+    if ($content -match 'force resume even if not in our DB') {
+        Write-Host "[Patch 3] facade resume: Already patched." -ForegroundColor Green
+    } else {
+        $oldCode = '            # For new sessions, don''t pass session_id to Claude Code
+            claude_session_id = session.session_id if should_continue else None'
+        $newCode = '            # For new sessions, don''t pass session_id to Claude Code
+            claude_session_id = session.session_id if should_continue else None
+
+            # If caller provided a session_id explicitly (e.g. /resume),
+            # force resume even if not in our DB
+            if session_id and not claude_session_id:
+                claude_session_id = session_id
+                should_continue = True'
+
+        $patched = $content.Replace($oldCode, $newCode)
+        if ($patched -ne $content) {
+            Set-Content $facadeFile -Value $patched -NoNewline
+            Write-Host "[Patch 3] facade resume: Patched." -ForegroundColor Green
+        } else {
+            $errors += "Could not find facade resume pattern"
+        }
+    }
+} else {
+    $errors += "facade.py not found"
+}
+
+# ============================================================
 if ($errors.Count -gt 0) {
     Write-Host "`nErrors:" -ForegroundColor Red
     foreach ($e in $errors) { Write-Host "  - $e" -ForegroundColor Red }

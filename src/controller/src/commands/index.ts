@@ -1,7 +1,7 @@
 import type { Bot } from 'grammy';
 import type { SessionManager } from '../session-manager';
-import { handleStart, handleStartAll } from './start';
-import { handleStop, handleStopAll } from './stop';
+import { handleStart, handleStartAll, startSessionById } from './start';
+import { handleStop, handleStopAll, stopSessionById } from './stop';
 import { handleRestart } from './restart';
 import { handleStatus } from './status';
 import { handleMode } from './mode';
@@ -20,4 +20,16 @@ export function registerAllCommands(bot: Bot, sm: SessionManager): void {
   bot.command('help', (ctx) => handleHelp(ctx));
   // Handle Telegram's built-in /start command with welcome message
   bot.command('start', (ctx) => handleHelp(ctx));
+
+  // Inline keyboard callback handlers
+  bot.callbackQuery(/^run:(\d+)$/, async (ctx) => {
+    const sessionId = parseInt(ctx.match[1], 10);
+    await ctx.answerCallbackQuery();
+    await startSessionById(ctx, sm, sessionId);
+  });
+  bot.callbackQuery(/^kill:(\d+)$/, async (ctx) => {
+    const sessionId = parseInt(ctx.match[1], 10);
+    await ctx.answerCallbackQuery();
+    await stopSessionById(ctx, sm, sessionId);
+  });
 }

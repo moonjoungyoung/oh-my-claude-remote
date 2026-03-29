@@ -1,4 +1,5 @@
 import type { Context } from 'grammy';
+import { InlineKeyboard } from 'grammy';
 import type { SessionManager } from '../session-manager';
 
 export async function handleStop(ctx: Context, sm: SessionManager): Promise<void> {
@@ -7,7 +8,18 @@ export async function handleStop(ctx: Context, sm: SessionManager): Promise<void
   const arg = parts[1];
 
   if (!arg) {
-    await ctx.reply('Usage: /kill N (session number) or /killall');
+    // No argument: show running sessions as buttons
+    const states = sm.getAllStates();
+    const running = states.filter((s) => s.status === 'running');
+    if (running.length === 0) {
+      await ctx.reply('No running sessions.');
+      return;
+    }
+    const kb = new InlineKeyboard();
+    for (const s of running) {
+      kb.text(`⏹ ${s.id} ${s.name}`, `kill:${s.id}`).row();
+    }
+    await ctx.reply('Stop which session?', { reply_markup: kb });
     return;
   }
 
@@ -17,6 +29,21 @@ export async function handleStop(ctx: Context, sm: SessionManager): Promise<void
     return;
   }
 
+  await stopSessionById(ctx, sm, sessionId);
+}
+
+export async function handleStopAll(ctx: Context, sm: SessionManager): Promise<void> {
+  try {
+    await ctx.reply('🛑 Stopping all sessions...');
+    await sm.stopAll();
+    await ctx.reply('✅ All sessions stopped.');
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await ctx.reply(`❌ Failed to stop all sessions: ${msg}`);
+  }
+}
+
+export async function stopSessionById(ctx: Context, sm: SessionManager, sessionId: number): Promise<void> {
   try {
     const currentState = sm.getSessionState(sessionId);
     if (currentState.status === 'stopped') {
@@ -33,16 +60,5 @@ export async function handleStop(ctx: Context, sm: SessionManager): Promise<void
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     await ctx.reply(`❌ Failed to stop session ${sessionId}: ${msg}`);
-  }
-}
-
-export async function handleStopAll(ctx: Context, sm: SessionManager): Promise<void> {
-  try {
-    await ctx.reply('🛑 Stopping all sessions...');
-    await sm.stopAll();
-    await ctx.reply('✅ All sessions stopped.');
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    await ctx.reply(`❌ Failed to stop all sessions: ${msg}`);
   }
 }
