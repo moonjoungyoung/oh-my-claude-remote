@@ -92,7 +92,23 @@ export class ProcessManager {
     const timestamp = new Date().toISOString();
     fs.appendFileSync(logFile, `[${timestamp}] Session ${config.id} started (claude-telegram-bot). PID: ${pid}\n`);
 
+    // Send startup notification to the worker's Telegram chat
+    this.sendWorkerNotification(token, authorizedUsers[0], `🟢 Worker ${config.id} (${config.name}) ready.\nSend a message to start working.`);
+
     return { pid };
+  }
+
+  private async sendWorkerNotification(token: string, chatId: number, message: string): Promise<void> {
+    try {
+      const url = `https://api.telegram.org/bot${token}/sendMessage`;
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: message }),
+      });
+    } catch {
+      // Non-critical, ignore
+    }
   }
 
   async killSession(sessionId: number): Promise<boolean> {
