@@ -38,6 +38,10 @@ export class ProcessManager {
     // Create per-session .env for claude-telegram-bot
     const envFile = path.join(sessionDir, '.env');
     const permissionMode = mode === 'yolo' ? 'bypassPermissions' : mode === 'plan' ? 'plan' : 'default';
+    // Each worker gets its own database to prevent cross-worker session conflicts
+    const dbPath = path.join(sessionDir, 'bot.db');
+    const dbUrl = `sqlite:///${dbPath.replace(/\\/g, '/')}`;
+
     const envContent = [
       `TELEGRAM_BOT_TOKEN=${token}`,
       `TELEGRAM_BOT_USERNAME=${config.botUsername}`,
@@ -45,6 +49,7 @@ export class ProcessManager {
       `ALLOWED_USERS=${authorizedUsers.join(',')}`,
       `CLAUDE_PERMISSION_MODE=${permissionMode}`,
       `AGENTIC_MODE=true`,
+      `DATABASE_URL=${dbUrl}`,
       `SANDBOX_ENABLED=false`,
       `DISABLE_SECURITY_PATTERNS=true`,
       `DISABLE_TOOL_VALIDATION=true`,
