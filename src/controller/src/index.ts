@@ -1,12 +1,55 @@
-import { loadConfig } from './config';
+import { loadConfig, getProjectRoot } from './config';
 import { detectPlatform } from './platform';
 import { createCredentialProvider } from './credential-provider';
 import { ProcessManager } from './process-manager';
 import { SessionManager } from './session-manager';
 import { HealthMonitor } from './health-monitor';
 import { createBot, registerCommands, sendNotification } from './bot';
+import { forceKillProcess } from './platform';
+import fs from 'fs';
+import path from 'path';
+
+/**
+ * Kill any existing master bot (bun) and worker (claude-telegram-bot) processes
+ * to prevent duplicate instances and Telegram polling conflicts.
+ */
+async function cleanupExistingProcesses(): Promise<void> {
+  const pidFile = path.join(getProjectRoot(), 'state', 'master.pid');
+
+  // Kill previous master bot if PID file exists
+  if (fs.existsSync(pidFile)) {
+    const oldPid = parseInt(fs.readFileSync(pidFile, 'utf-8').trim(), 10);
+    if (!isNaN(oldPid) && oldPid !== process.pid) {
+      console.log(`[Main] Killing previous master bot (PID: ${oldPid})...`);
+      try { await forceKillProcess(oldPid); } catch { /* already dead */ }
+    }
+  }
+
+  // Kill any existing telegram worker processes
+  if (detectPlatform() === 'windows') {
+    const proc = Bun.spawn(['pwsh', '-NoProfile', '-Command',
+      `Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -like '*telegram*' } | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }`
+    ], { stdout: 'ignore', stderr: 'ignore' });
+    await proc.exited;
+  } else {
+    const proc = Bun.spawn(['pkill', '-f', 'claude-telegram-bot'], { stdout: 'ignore', stderr: 'ignore' });
+    await proc.exited;
+  }
+
+  // Write current PID
+  const stateDir = path.join(getProjectRoot(), 'state');
+  if (!fs.existsSync(stateDir)) {
+    fs.mkdirSync(stateDir, { recursive: true });
+  }
+  fs.writeFileSync(pidFile, String(process.pid));
+
+  console.log('[Main] Cleanup complete.');
+}
 
 async function main(): Promise<void> {
+  console.log('[Main] Cleaning up existing processes...');
+  await cleanupExistingProcesses();
+
   console.log('[Main] Loading config...');
   const config = loadConfig();
 
